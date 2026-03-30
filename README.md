@@ -27,8 +27,18 @@ A gestão de projetos frequentemente enfrenta desafios críticos que impactam di
 ## 🏗️ Arquitetura
 
 ```
-
-
+[Ingestão de Dados]
+CSV Upload ───────────────► Supabase (PostgreSQL)
+│
+┌───────────┴───────────┐
+▼ ▼
+🥉 Bronze Pipeline ETL
+(dados brutos) │
+│ ┌──────┴──────┐
+▼ ▼ ▼
+🥈 Silver Limpeza Padronização
+(dados tratados) & Tipagem & Regras
+│
 ▼
 🥇 Gold
 (indicadores)
@@ -37,7 +47,6 @@ A gestão de projetos frequentemente enfrenta desafios críticos que impactam di
 ▼ ▼
 [API] [Dashboards]
 (FastAPI) Web / Power BI / BI Tools
-
 ```
 
 
@@ -206,6 +215,7 @@ python pipeline/silver_to_gold.py
 # 5. Rodar API
 uvicorn api.main:app --reload
 
+```
 ---
 
 | Entrega              | Status                |
@@ -231,41 +241,20 @@ Criar soluções escaláveis e desacopladas
 
 ---
 
-🚀 Autor
+## 🚀 Autor
 
-Moisés Ribeiro
+**Moisés Ribeiro**  
+Analista de Dados, Projetos & Processos  
+Lean Six Sigma | Python, R, SQL, Power BI  
+Focado em Melhoria Contínua orientada a Dados
+
+🔗 **LinkedIn:** https://www.linkedin.com/in/moisesrsjr/  
+🧪 **Lab (Projetos e Experimentos):** https://github.com/moises-rb-lab  
+💻 **Vitrine (Portfólio Principal):** https://github.com/moises-rb  
+✍️ **Artigos e Insights:** https://medium.com/@moises.rsjr
 
 ---
 
 📢 Destaque
 
 “Mais do que analisar dados, este projeto demonstra a capacidade de construir uma solução completa de dados — da ingestão ao insight.”
-
-
----
-
-# 🧠 Agora um insight importante (nível estratégico)
-
-Esse README posiciona você como:
-
-- 🔥 Analista com visão de engenharia
-- 🔥 Profissional orientado a negócio
-- 🔥 Alguém que entende arquitetura moderna de dados
-
-Mas se quiser **subir ainda mais o nível (quase nível sênior)**, no futuro podemos adicionar:
-
-- seção de **trade-offs técnicos**
-- seção de **decisões arquiteturais**
-- seção de **escalabilidade (batch vs streaming)**
-
----
-
-# 🚀 Próximo passo
-
-Agora que o README está pronto:
-
-👉 Me manda o dataset que você escolheu  
-ou  
-👉 quer que eu te sugira um dataset ideal (já pensando nos KPIs e narrativa)?
-
-A partir daí, começamos a **ETAPA 1 (EDA real)** — onde o projeto começa a ficar forte de verdade.
