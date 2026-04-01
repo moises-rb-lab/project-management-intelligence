@@ -220,9 +220,9 @@ uvicorn api.main:app --reload
 
 | Entrega              | Status                |
 | -------------------- | --------------------- |
-| Arquitetura Medalhão | ✅ Concluído           |
-| Pipeline ETL         | 🔄 Em desenvolvimento |
-| API (FastAPI)        | ⏳ Aguardando          |
+| Arquitetura Medalhão | ✅ Concluído          |
+| Pipeline ETL         | ✅ Concluído          |
+| API (FastAPI)        | ✅ Concluído          |
 | Dashboard Web        | ⏳ Aguardando          |
 | Integração com BI    | ⏳ Aguardando          |
 | Deploy               | ⏳ Aguardando          |
