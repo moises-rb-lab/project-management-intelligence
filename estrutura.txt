@@ -1,0 +1,42 @@
+[DIR] project-management-intelligence
+[DIR] api
+    [FILE] main.py
+[DIR] dashboard
+    [DIR] web
+[DIR] data
+    [DIR] management
+        [DIR] bronze
+        [DIR] gold
+            [FILE] department_region.parquet
+            [FILE] phase_complexity.parquet
+            [FILE] projects_kpis.parquet
+            [FILE] status_summary.parquet
+        [DIR] silver
+            [FILE] project_management_silver.parquet
+    [DIR] raw
+        [FILE] project_management_dataset.csv
+        [FILE] project_risk_raw_dataset.csv
+    [DIR] risk
+        [DIR] bronze
+        [DIR] gold
+        [DIR] silver
+[DIR] docs
+    [FILE] architecture.md
+    [FILE] data_dictionary.md
+    [FILE] eda_insights.md
+    [FILE] resumo_projeto.md
+[DIR] ingestion
+    [DIR] management
+        [FILE] ingest_csv.py
+    [DIR] risk
+[DIR] pipeline
+    [DIR] management
+        [FILE] bronze_to_silver.py
+        [FILE] silver_to_gold.py
+    [DIR] risk
+[FILE] .env.example
+[FILE] .gitignore
+[FILE] estrutura.txt
+[FILE] export_structure.ps1
+[FILE] README.md
+[FILE] requirements.txt
