@@ -1,13 +1,18 @@
-import pandas as pd
+import os
 from fastapi import APIRouter, HTTPException, Query
-from pathlib import Path
+from dotenv import load_dotenv
+from supabase import create_client
 from typing import Optional
 
 # ─────────────────────────────────────────
 # CONFIGURAÇÃO
 # ─────────────────────────────────────────
-BASE_PATH = Path(__file__).resolve().parents[2]
-GOLD_PATH = BASE_PATH / "data" / "risk" / "gold"
+load_dotenv()
+
+client = create_client(
+    os.getenv("SUPABASE_URL"),
+    os.getenv("SUPABASE_KEY")
+)
 
 router = APIRouter(prefix="/risk", tags=["Risk"])
 
@@ -15,15 +20,16 @@ router = APIRouter(prefix="/risk", tags=["Risk"])
 # ─────────────────────────────────────────
 # HELPERS
 # ─────────────────────────────────────────
-def load_gold(file_name: str) -> pd.DataFrame:
-    path = GOLD_PATH / file_name
-    if not path.exists():
-        raise HTTPException(status_code=404, detail=f"Arquivo não encontrado: {file_name}")
-    return pd.read_parquet(path)
-
-
-def df_to_json(df: pd.DataFrame) -> list:
-    return df.where(pd.notnull(df), None).to_dict(orient="records")
+def fetch(view: str, filters: dict = {}) -> list:
+    try:
+        query = client.table(view).select("*")
+        for column, value in filters.items():
+            if value is not None:
+                query = query.ilike(column, value)
+        response = query.execute()
+        return response.data
+    except Exception as e:
+        raise HTTPException(status_code=500, detail=str(e))
 
 
 # ─────────────────────────────────────────
@@ -31,62 +37,53 @@ def df_to_json(df: pd.DataFrame) -> list:
 # ─────────────────────────────────────────
 @router.get("/profile", summary="Perfil de risco por projeto")
 def get_risk_profile(
-    risk_level: Optional[str]        = Query(None, description="Filtrar por nível de risco (ex: High)"),
-    project_type: Optional[str]      = Query(None, description="Filtrar por tipo de projeto (ex: It)"),
-    project_phase: Optional[str]     = Query(None, description="Filtrar por fase (ex: Planning)"),
-    experience_level: Optional[str]  = Query(None, description="Filtrar por experiência do time (ex: Senior)"),
+    risk_level:       Optional[str] = Query(None, description="Filtrar por nível de risco (ex: High)"),
+    project_type:     Optional[str] = Query(None, description="Filtrar por tipo de projeto (ex: It)"),
+    project_phase:    Optional[str] = Query(None, description="Filtrar por fase (ex: Planning)"),
+    experience_level: Optional[str] = Query(None, description="Filtrar por experiência do time (ex: Senior)"),
 ):
-    df = load_gold("risk_profile.parquet")
-
-    if risk_level:
-        df = df[df["Risk_Level"].str.title() == risk_level.title()]
-    if project_type:
-        df = df[df["Project_Type"].str.title() == project_type.title()]
-    if project_phase:
-        df = df[df["Project_Phase"].str.title() == project_phase.title()]
-    if experience_level:
-        df = df[df["Team_Experience_Level"].str.title() == experience_level.title()]
-
-    return {"total": len(df), "data": df_to_json(df)}
+    filters = {
+        "risk_level":           risk_level,
+        "project_type":         project_type,
+        "project_phase":        project_phase,
+        "team_experience_level": experience_level,
+    }
+    data = fetch("vw_risk_profile", filters)
+    return {"total": len(data), "data": data}
 
 
 @router.get("/by-type", summary="Distribuição de risco por tipo de projeto")
 def get_risk_by_type(
     project_type: Optional[str] = Query(None, description="Filtrar por tipo de projeto"),
-    risk_level: Optional[str]   = Query(None, description="Filtrar por nível de risco"),
+    risk_level:   Optional[str] = Query(None, description="Filtrar por nível de risco"),
 ):
-    df = load_gold("risk_by_type.parquet")
-
-    if project_type:
-        df = df[df["Project_Type"].str.title() == project_type.title()]
-    if risk_level:
-        df = df[df["Risk_Level"].str.title() == risk_level.title()]
-
-    return {"total": len(df), "data": df_to_json(df)}
+    filters = {
+        "project_type": project_type,
+        "risk_level":   risk_level,
+    }
+    data = fetch("vw_risk_by_type", filters)
+    return {"total": len(data), "data": data}
 
 
 @router.get("/by-methodology", summary="Risco por metodologia e experiência do time")
 def get_risk_by_methodology(
-    methodology: Optional[str]       = Query(None, description="Filtrar por metodologia (ex: Agile)"),
-    experience_level: Optional[str]  = Query(None, description="Filtrar por experiência do time"),
+    methodology:      Optional[str] = Query(None, description="Filtrar por metodologia (ex: Agile)"),
+    experience_level: Optional[str] = Query(None, description="Filtrar por experiência do time"),
 ):
-    df = load_gold("risk_by_methodology.parquet")
-
-    if methodology:
-        df = df[df["Methodology_Used"].str.title() == methodology.title()]
-    if experience_level:
-        df = df[df["Team_Experience_Level"].str.title() == experience_level.title()]
-
-    return {"total": len(df), "data": df_to_json(df)}
+    filters = {
+        "methodology_used":      methodology,
+        "team_experience_level": experience_level,
+    }
+    data = fetch("vw_risk_by_methodology", filters)
+    return {"total": len(data), "data": data}
 
 
 @router.get("/factors", summary="Resumo dos fatores de risco por nível")
 def get_risk_factors(
     risk_level: Optional[str] = Query(None, description="Filtrar por nível de risco (ex: High)"),
 ):
-    df = load_gold("risk_factors_summary.parquet")
-
-    if risk_level:
-        df = df[df["Risk_Level"].str.title() == risk_level.title()]
-
-    return {"total": len(df), "data": df_to_json(df)}
+    filters = {
+        "risk_level": risk_level,
+    }
+    data = fetch("vw_risk_factors_summary", filters)
+    return {"total": len(data), "data": data}
