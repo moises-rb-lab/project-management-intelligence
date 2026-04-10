@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.routers import management_old, risk_old
+from api.routers import management, risk
 
 app = FastAPI(
     title="Project Analytics API",
@@ -7,8 +7,8 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.include_router(management_old.router)
-app.include_router(risk_old.router)
+app.include_router(management.router)
+app.include_router(risk.router)
 
 
 @app.get("/", tags=["Health"])
