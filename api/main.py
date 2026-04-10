@@ -1,5 +1,5 @@
 from fastapi import FastAPI
-from api.routers import management, risk
+from api.routers import management_old, risk
 
 app = FastAPI(
     title="Project Analytics API",
@@ -7,7 +7,7 @@ app = FastAPI(
     version="1.0.0"
 )
 
-app.include_router(management.router)
+app.include_router(management_old.router)
 app.include_router(risk.router)
 
 
